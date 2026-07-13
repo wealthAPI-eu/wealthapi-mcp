@@ -1,14 +1,38 @@
 {
-  "name": "wealthapi-mcp",
+  "name": "@wealthapi/mcp-server",
+  "mcpName": "eu.wealthapi/mcp-server",
   "version": "0.1.0",
   "description": "General-purpose MCP server for the wealthAPI platform. Lets an AI assistant answer everyday portfolio questions on the user's behalf.",
+  "license": "MIT",
   "type": "module",
   "main": "build/index.js",
+  "bin": {
+    "wealthapi-mcp": "build/index.js"
+  },
+  "files": [
+    "build"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/rentablo/wealthapi-mcp.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "wealthapi",
+    "finance",
+    "portfolio",
+    "claude"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node build/index.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepublishOnly": "pnpm test && pnpm build"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",

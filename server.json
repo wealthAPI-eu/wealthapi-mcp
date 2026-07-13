@@ -1,0 +1,39 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "eu.wealthapi/mcp-server",
+  "description": "General-purpose MCP server for the wealthAPI platform. Lets an AI assistant answer everyday portfolio questions on the user's behalf.",
+  "repository": {
+    "url": "https://gitlab.com/rentablo/wealthapi-mcp",
+    "source": "gitlab"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@wealthapi/mcp-server",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "BEARER_TOKEN",
+          "description": "Personal wealthAPI API token (wapi_key_…)",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "WEALTHAPI_BASE_URL",
+          "description": "Base URL of the wealthAPI REST API",
+          "default": "https://sandbox.wealthapi.eu/api"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "description": "Logging verbosity (debug, info, warn, error)",
+          "default": "info"
+        }
+      ]
+    }
+  ]
+}
