@@ -1,0 +1,41 @@
+{
+  "manifest_version": "0.2",
+  "name": "wealthapi-mcp",
+  "version": "0.1.0",
+  "description": "General-purpose MCP server for the wealthAPI platform. Lets an AI assistant answer everyday portfolio questions on the user's behalf.",
+  "author": {
+    "name": "Belkacem Berchiche",
+    "email": "belkacem.berchiche@wealthapi.eu"
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "build/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/build/index.js"
+      ],
+      "env": {
+        "BEARER_TOKEN": "${user_config.bearer_token}",
+        "WEALTHAPI_BASE_URL": "${user_config.api_base_url}"
+      }
+    }
+  },
+  "user_config": {
+    "bearer_token": {
+      "type": "string",
+      "title": "Bearer Token",
+      "description": "Your personal wealthAPI bearer token. Acts on your behalf — read-only access to accounts, holdings, transactions and performance.",
+      "sensitive": true,
+      "required": true
+    },
+    "api_base_url": {
+      "type": "string",
+      "title": "API Base URL",
+      "description": "wealthAPI base URL (e.g. https://sandbox.wealthapi.eu/api or https://www.wealthapi.eu/api)",
+      "required": true,
+      "default": "https://sandbox.wealthapi.eu/api"
+    }
+  },
+  "license": "MIT"
+}
