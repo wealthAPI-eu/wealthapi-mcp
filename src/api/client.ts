@@ -69,7 +69,7 @@ export class ApiClient {
     }
 
     if (!res.ok) {
-      throw new Error(`API error ${res.status} on ${method} ${path}: ${text}`);
+      throw new Error(`API error ${res.status} on ${method} ${path}`);
     }
 
     return JSON.parse(text) as T;
