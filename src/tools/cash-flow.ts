@@ -2,6 +2,8 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ApiClient } from "../api/client.js";
 import type {
+  Account,
+  AccountList,
   ExtendedDateValuePair,
   ExtendedDateValuePairList,
   IncomeAndSpendingHistory,
@@ -84,6 +86,16 @@ export function computeSavingsRate(income: number, spending: number): number | n
   return ((income - spending) / income) * 100;
 }
 
+export function cashAccountIds(accounts: Account[]): number[] {
+  return accounts.filter((a) => a.type === "02_cash").map((a) => a.id);
+}
+
+async function resolveCashAccountIds(client: ApiClient, accountId?: number[]): Promise<number[]> {
+  if (accountId && accountId.length > 0) return accountId;
+  const data = await client.get<AccountList>("/v1/accounts");
+  return cashAccountIds(data.accounts ?? []);
+}
+
 export function registerCashFlowTools(server: McpServer, client: ApiClient): void {
   server.registerTool(
     "get_cash_flow_summary",
@@ -96,7 +108,7 @@ export function registerCashFlowTools(server: McpServer, client: ApiClient): voi
         accountId: z
           .array(z.number())
           .optional()
-          .describe("Cash account ID(s) to scope to; omit for all accounts"),
+          .describe("Cash account ID(s) (type '02_cash') to scope to; omit to use all cash accounts"),
         excludeTransfers: z
           .boolean()
           .default(true)
@@ -105,12 +117,17 @@ export function registerCashFlowTools(server: McpServer, client: ApiClient): voi
     },
     async ({ from, to, accountId, excludeTransfers }) => {
       try {
+        const ids = await resolveCashAccountIds(client, accountId);
+        if (ids.length === 0) {
+          return { content: [{ type: "text" as const, text: "No cash accounts found." }] };
+        }
+
         const history = await client.get<IncomeAndSpendingHistory>(
           "/v1/cashFlowAnalytics/history",
           {
             from,
             to,
-            id: accountId,
+            id: ids,
             enableTransferCategoryFiltering: excludeTransfers,
           }
         );
@@ -159,7 +176,7 @@ export function registerCashFlowTools(server: McpServer, client: ApiClient): voi
         accountId: z
           .array(z.number())
           .optional()
-          .describe("Cash account ID(s) to scope to; omit for all accounts"),
+          .describe("Cash account ID(s) (type '02_cash') to scope to; omit to use all cash accounts"),
         excludeTransfers: z
           .boolean()
           .default(true)
@@ -168,12 +185,17 @@ export function registerCashFlowTools(server: McpServer, client: ApiClient): voi
     },
     async ({ from, to, accountId, excludeTransfers }) => {
       try {
+        const ids = await resolveCashAccountIds(client, accountId);
+        if (ids.length === 0) {
+          return { content: [{ type: "text" as const, text: "No cash accounts found." }] };
+        }
+
         const history = await client.get<IncomeAndSpendingHistory>(
           "/v1/cashFlowAnalytics/history",
           {
             from,
             to,
-            id: accountId,
+            id: ids,
             enableTransferCategoryFiltering: excludeTransfers,
           }
         );
