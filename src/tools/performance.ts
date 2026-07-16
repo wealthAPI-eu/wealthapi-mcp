@@ -1,8 +1,8 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ApiClient } from "../api/client.js";
-import type { PortfolioPerformanceResultList } from "../api/types.js";
-import { formatCurrency, formatDate, formatPercent } from "../util/format.js";
+import type { PortfolioPerformanceResultList, RealizedGainByYearList } from "../api/types.js";
+import { formatCurrency, formatDate, formatPercent, formatTable } from "../util/format.js";
 
 export function registerPerformanceTools(server: McpServer, client: ApiClient): void {
   server.registerTool(
@@ -56,6 +56,53 @@ export function registerPerformanceTools(server: McpServer, client: ApiClient): 
       } catch (error) {
         return {
           content: [{ type: "text" as const, text: `Error getting performance: ${errorMessage(error)}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.registerTool(
+    "get_realized_gains",
+    {
+      description:
+        "Get realized gains per year, split into trading, dividend, interest and other gains (gross and net, plus tax refunds). Use this for 'what did I realize this year?' and tax questions.",
+      inputSchema: {
+        accountIds: z.array(z.number()).describe("Depot ID(s) to include"),
+      },
+    },
+    async ({ accountIds }) => {
+      try {
+        const data = await client.get<RealizedGainByYearList>("/v1/performance/realizedGains", {
+          accountId: accountIds,
+        });
+        const gains = data.realizedGainsByYear ?? [];
+
+        if (gains.length === 0) {
+          return { content: [{ type: "text" as const, text: "No realized gains found." }] };
+        }
+
+        const headers = ["Year", "Total Net", "Trading Net", "Dividends Net", "Interest Net", "Other Net", "Tax Refund"];
+        const rows = gains.map((g) => [
+          String(g.year),
+          formatCurrency(g.totalNetGain),
+          formatCurrency(g.netTradingGain),
+          formatCurrency(g.netDividendGain),
+          formatCurrency(g.netInterestGain),
+          formatCurrency(g.netOtherGain),
+          formatCurrency(g.taxRefund),
+        ]);
+
+        const text = [
+          "Realized gains per year (net of taxes and commissions):",
+          "",
+          formatTable(headers, rows),
+        ].join("\n");
+
+        return { content: [{ type: "text" as const, text }] };
+      } catch (error) {
+        return {
+          content: [{ type: "text" as const, text: `Error getting realized gains: ${errorMessage(error)}` }],
           isError: true,
         };
       }

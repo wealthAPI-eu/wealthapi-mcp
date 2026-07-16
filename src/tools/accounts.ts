@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ApiClient } from "../api/client.js";
 import type { AccountList, DateValuePairList } from "../api/types.js";
-import { formatCurrency, formatDate, formatTable } from "../util/format.js";
+import { formatCurrency, formatDate, formatPercent, formatTable } from "../util/format.js";
 
 export function registerAccountTools(server: McpServer, client: ApiClient): void {
   server.registerTool(
@@ -95,6 +95,60 @@ export function registerAccountTools(server: McpServer, client: ApiClient): void
       } catch (error) {
         return {
           content: [{ type: "text" as const, text: `Error getting balances: ${errorMessage(error)}` }],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.registerTool(
+    "get_portfolio_valuation",
+    {
+      description:
+        "Get the current total value of one or more depots, and optionally its history when 'from' is given. Use this for 'what is my portfolio worth (today / over time)?'.",
+      inputSchema: {
+        accountIds: z.array(z.number()).describe("Depot ID(s) to include"),
+        includeCash: z.boolean().default(true).describe("Include the cash position"),
+        from: z.string().optional().describe("If set (yyyy-MM-dd), also return the valuation history since this date"),
+        interval: z.enum(["day", "week", "month", "year"]).default("month").describe("History interval"),
+      },
+    },
+    async ({ accountIds, includeCash, from, interval }) => {
+      try {
+        const current = await client.get<number>("/v1/accounts/valuation", {
+          id: accountIds,
+          includeCash,
+        });
+
+        const lines = [`Current portfolio value: ${formatCurrency(current)}`];
+
+        if (from) {
+          const history = await client.get<DateValuePairList>("/v1/accounts/historicValuations", {
+            id: accountIds,
+            intervalType: interval,
+            startDate: from,
+            includeCash,
+            includeCurrentValue: true,
+          });
+          const pairs = history.dateValuePairs ?? [];
+
+          if (pairs.length > 0) {
+            const first = pairs[0];
+            const change = first.value !== 0 ? ((current - first.value) / Math.abs(first.value)) * 100 : undefined;
+            lines.push(
+              `Since ${formatDate(first.date)}: ${formatCurrency(first.value)} → ${formatCurrency(current)}` +
+                (change !== undefined ? ` (${formatPercent(change)})` : ""),
+              "",
+              pairs.length > 24 ? "Last 24 data points:" : "History:",
+              ...pairs.slice(-24).map((p) => `  ${formatDate(p.date)}: ${formatCurrency(p.value)}`)
+            );
+          }
+        }
+
+        return { content: [{ type: "text" as const, text: lines.join("\n") }] };
+      } catch (error) {
+        return {
+          content: [{ type: "text" as const, text: `Error getting valuation: ${errorMessage(error)}` }],
           isError: true,
         };
       }

@@ -178,6 +178,23 @@ describe("groupRecurring", () => {
   });
 });
 
+describe("cashAccountIds", () => {
+  it("cashAccountIds returns only ids of accounts with type 02_cash", async () => {
+    const { cashAccountIds } = await import("../../src/tools/cash-flow.js");
+    const ids = cashAccountIds([
+      { id: 1, name: "Giro", type: "02_cash" },
+      { id: 2, name: "Depot", type: "01_depot" },
+      { id: 3, name: "Savings", type: "02_cash" },
+    ]);
+    expect(ids).toEqual([1, 3]);
+  });
+
+  it("cashAccountIds returns empty array when no cash accounts exist", async () => {
+    const { cashAccountIds } = await import("../../src/tools/cash-flow.js");
+    expect(cashAccountIds([{ id: 2, name: "Depot", type: "01_depot" }])).toEqual([]);
+  });
+});
+
 describe("monthlyEquivalent", () => {
   it("monthlyEquivalent normalizes quarterly outflow to per-month value", async () => {
     const { monthlyEquivalent } = await import("../../src/tools/cash-flow.js");
