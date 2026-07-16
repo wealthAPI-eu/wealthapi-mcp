@@ -106,8 +106,7 @@ Add the server to Claude Desktop's config
       "command": "node",
       "args": ["/absolute/path/to/wealthapi-mcp/build/index.js"],
       "env": {
-        "BEARER_TOKEN": "paste-your-token-here",
-        "WEALTHAPI_BASE_URL": "https://www.wealthapi.eu/api"
+        "BEARER_TOKEN": "paste-your-token-here"
       }
     }
   }
@@ -136,7 +135,7 @@ That's it. No code generation, no registration files, no boilerplate.
 ```
 src/
   index.ts          Bootstrap: McpServer + StdioServerTransport + register*Tools(...)
-  config.ts         Reads BEARER_TOKEN + WEALTHAPI_BASE_URL from env
+  config.ts         Reads BEARER_TOKEN from env; API base URL is fixed to production
   api/
     client.ts       fetch wrapper: GET/POST, query strings, retry on 5xx/429
     types.ts        TS interfaces for API response shapes

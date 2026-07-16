@@ -4,12 +4,12 @@ beforeAll(() => {
   process.env.BEARER_TOKEN = "test-token";
 });
 
-const BASE = "https://sandbox.wealthapi.eu/api";
+const BASE = "https://www.wealthapi.eu/api";
 
 describe("buildUrl", () => {
   it("builds a simple URL without params", async () => {
     const { buildUrl } = await import("../../src/api/client.js");
-    expect(buildUrl(BASE, "/v1/accounts")).toBe("https://sandbox.wealthapi.eu/api/v1/accounts");
+    expect(buildUrl(BASE, "/v1/accounts")).toBe("https://www.wealthapi.eu/api/v1/accounts");
   });
 
   it("appends scalar params", async () => {
@@ -42,6 +42,6 @@ describe("buildUrl", () => {
 
   it("handles empty params object", async () => {
     const { buildUrl } = await import("../../src/api/client.js");
-    expect(buildUrl(BASE, "/v1/test", {})).toBe("https://sandbox.wealthapi.eu/api/v1/test");
+    expect(buildUrl(BASE, "/v1/test", {})).toBe("https://www.wealthapi.eu/api/v1/test");
   });
 });
