@@ -1,5 +1,5 @@
 {
-  "name": "@wealthapi/mcp-server",
+  "name": "@wealth_api/mcp-server",
   "mcpName": "eu.wealthapi/mcp-server",
   "version": "0.1.0",
   "description": "General-purpose MCP server for the wealthAPI platform. Lets an AI assistant answer everyday portfolio questions on the user's behalf.",
