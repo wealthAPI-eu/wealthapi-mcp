@@ -11,7 +11,7 @@
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
-      "identifier": "@wealthapi/mcp-server",
+      "identifier": "@wealth_api/mcp-server",
       "version": "0.1.0",
       "transport": {
         "type": "stdio"
