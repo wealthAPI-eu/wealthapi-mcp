@@ -16,8 +16,7 @@
         "${__dirname}/build/index.js"
       ],
       "env": {
-        "BEARER_TOKEN": "${user_config.bearer_token}",
-        "WEALTHAPI_BASE_URL": "${user_config.api_base_url}"
+        "BEARER_TOKEN": "${user_config.bearer_token}"
       }
     }
   },
@@ -28,13 +27,6 @@
       "description": "Your personal wealthAPI bearer token. Acts on your behalf — read-only access to accounts, holdings, transactions and performance.",
       "sensitive": true,
       "required": true
-    },
-    "api_base_url": {
-      "type": "string",
-      "title": "API Base URL",
-      "description": "wealthAPI base URL (e.g. https://sandbox.wealthapi.eu/api or https://www.wealthapi.eu/api)",
-      "required": true,
-      "default": "https://sandbox.wealthapi.eu/api"
     }
   },
   "license": "MIT"

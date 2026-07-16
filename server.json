@@ -3,8 +3,8 @@
   "name": "eu.wealthapi/mcp-server",
   "description": "General-purpose MCP server for the wealthAPI platform. Lets an AI assistant answer everyday portfolio questions on the user's behalf.",
   "repository": {
-    "url": "https://gitlab.com/rentablo/wealthapi-mcp",
-    "source": "gitlab"
+    "url": "https://github.com/wealthAPI-eu/wealthapi-mcp",
+    "source": "github"
   },
   "version": "0.1.0",
   "packages": [
@@ -22,11 +22,6 @@
           "description": "Personal wealthAPI API token (wapi_key_…)",
           "isRequired": true,
           "isSecret": true
-        },
-        {
-          "name": "WEALTHAPI_BASE_URL",
-          "description": "Base URL of the wealthAPI REST API",
-          "default": "https://sandbox.wealthapi.eu/api"
         },
         {
           "name": "LOG_LEVEL",
