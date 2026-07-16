@@ -17,7 +17,7 @@ const validLogLevels: LogLevel[] = ["debug", "info", "warn", "error"];
 const rawLogLevel = (process.env.LOG_LEVEL ?? "info").toLowerCase() as LogLevel;
 
 export const config: Config = {
-  apiBaseUrl: "https://www.wealthapi.eu/api",
+  apiBaseUrl: "https://wealthapi.eu/api",
   bearerToken,
   logLevel: validLogLevels.includes(rawLogLevel) ? rawLogLevel : "info",
 };
