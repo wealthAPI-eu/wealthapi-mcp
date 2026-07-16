@@ -1,7 +1,5 @@
 import "dotenv/config";
 
-import { assertSecureBaseUrl } from "./util/base-url.js";
-
 export type LogLevel = "debug" | "info" | "warn" | "error";
 
 export interface Config {
@@ -19,9 +17,7 @@ const validLogLevels: LogLevel[] = ["debug", "info", "warn", "error"];
 const rawLogLevel = (process.env.LOG_LEVEL ?? "info").toLowerCase() as LogLevel;
 
 export const config: Config = {
-  apiBaseUrl: assertSecureBaseUrl(
-    process.env.WEALTHAPI_BASE_URL ?? "https://sandbox.wealthapi.eu/api"
-  ),
+  apiBaseUrl: "https://wealthapi.eu/api",
   bearerToken,
   logLevel: validLogLevels.includes(rawLogLevel) ? rawLogLevel : "info",
 };
