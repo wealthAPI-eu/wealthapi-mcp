@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "eu.wealthapi/mcp-server",
-  "description": "General-purpose MCP server for the wealthAPI platform. Lets an AI assistant answer everyday portfolio questions on the user's behalf.",
+  "description": "Read-only MCP server for wealthAPI: portfolio, cash-flow, and dividend insights for AI assistants.",
   "repository": {
     "url": "https://github.com/wealthAPI-eu/wealthapi-mcp",
     "source": "github"
