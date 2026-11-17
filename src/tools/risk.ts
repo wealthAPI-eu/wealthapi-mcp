@@ -33,8 +33,8 @@ export function registerRiskTools(server: McpServer, client: ApiClient): void {
           const data = await client.get<RiskYield>("/v1/riskYieldMetrics", params);
           const text = [
             "Portfolio risk/yield metrics (annualized):",
-            `Volatility (std deviation): ${formatPercent(data.annualizedStandardDeviation ?? 0).replace("+", "")} — risk class: ${riskClassLabel(data.annualizedRiskClass)}`,
-            `Return: ${formatPercent(data.annualizedReturn ?? 0)} — return class: ${riskClassLabel(data.annualizedReturnClass)}`,
+            `Volatility (std deviation): ${formatPercent((data.annualizedStandardDeviation ?? 0) * 100).replace("+", "")} — risk class: ${riskClassLabel(data.annualizedRiskClass)}`,
+            `Return: ${formatPercent((data.annualizedReturn ?? 0) * 100)} — return class: ${riskClassLabel(data.annualizedReturnClass)}`,
           ].join("\n");
           return { content: [{ type: "text" as const, text }] };
         }
@@ -51,10 +51,10 @@ export function registerRiskTools(server: McpServer, client: ApiClient): void {
           (m.investmentReference?.name ?? "N/A").slice(0, 35),
           m.investmentReference?.isin ?? "N/A",
           m.annualizedStandardDeviation !== undefined
-            ? formatPercent(m.annualizedStandardDeviation).replace("+", "")
+            ? formatPercent(m.annualizedStandardDeviation * 100).replace("+", "")
             : "N/A",
           riskClassLabel(m.annualizedRiskClass),
-          m.annualizedReturn !== undefined ? formatPercent(m.annualizedReturn) : "N/A",
+          m.annualizedReturn !== undefined ? formatPercent(m.annualizedReturn * 100) : "N/A",
           riskClassLabel(m.annualizedReturnClass),
         ]);
 
