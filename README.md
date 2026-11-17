@@ -80,7 +80,7 @@ The server also registers prompts (`monthly_review`, `savings_rate_check`,
 `subscription_audit`, `fixed_costs_summary`, `financial_health_check`) that chain these
 tools into guided analyses.
 
-Tool registration is gated by `SUPPORTED_TOOLS`/`SUPPORTED_PROMPTS` in `src/index.ts` —
+Tool registration is gated by `SUPPORTED_TOOLS`/`SUPPORTED_PROMPTS` in `src/server.ts` —
 remove a name there to disable it without deleting code.
 
 ## Install
@@ -116,6 +116,26 @@ Add the server to Claude Desktop's config
 Restart Claude Desktop. The active tools will appear in the tools panel of any chat,
 and you can ask portfolio questions in plain English.
 
+## Use as a library
+
+A Node backend can import the tools and run them in its own process, without stdio:
+
+```ts
+import { connectTools } from "@wealth_api/mcp-server";
+
+const connection = await connectTools({ baseUrl: "https://wealthapi.eu/api", token });
+
+connection.tools;
+await connection.call("list_accounts", {});
+await connection.close();
+```
+
+- `tools` lists each tool's `name`, `description` and `inputSchema` (JSON Schema).
+- `call` returns `{ text, isError }`.
+- Each `connectTools` call has its own token, so one backend can serve many users.
+- Take `baseUrl` from your configuration, never from a request: the token is sent there.
+- The library does not check the token; check it before you call a tool.
+
 ## How to add a new tool
 
 The canonical example lives in `src/tools/accounts.ts` — `list_accounts` is ~50 lines
@@ -125,7 +145,7 @@ and shows the whole pattern.
    `register*Tools(server, client)` function that calls `server.registerTool(...)`.
    Each call takes a name, a `{ description, inputSchema }` object (Zod for the
    input schema), and an async handler that returns `{ content: [{ type: "text", text }] }`.
-2. Import and call your `register*Tools` from `src/index.ts`.
+2. Import and call your `register*Tools` from `src/server.ts`.
 3. `pnpm build` and restart Claude Desktop.
 
 That's it. No code generation, no registration files, no boilerplate.
@@ -134,10 +154,12 @@ That's it. No code generation, no registration files, no boilerplate.
 
 ```
 src/
-  index.ts          Bootstrap: McpServer + StdioServerTransport + register*Tools(...)
-  config.ts         Reads BEARER_TOKEN from env; API base URL is fixed to production
+  index.ts          Command entry: starts the server over stdio
+  server.ts         createServer: McpServer + register*Tools(...), tool and prompt allowlists
+  library.ts        connectTools: the tools in-process, for use from another backend
+  config.ts         For the command only: BEARER_TOKEN from env, production API base URL
   api/
-    client.ts       fetch wrapper: GET/POST, query strings, retry on 5xx/429
+    client.ts       fetch wrapper: takes token and base URL; GET/POST, query strings, retry on 5xx/429
     types.ts        TS interfaces for API response shapes
   tools/
     accounts.ts     list_accounts, get_account_balances, get_portfolio_valuation
@@ -154,10 +176,11 @@ src/
     logger.ts       Pino → stderr (stdout is reserved for MCP)
     format.ts       formatCurrency, formatDate, formatTable
 test/
+  library.test.ts   connectTools: tool list, token and base URL
   api/
     client.test.ts  Vitest unit test for the query-string builder
   tools/
-    *.test.ts       Unit tests for the pure aggregation helpers
+    *.test.ts       Unit tests for the pure aggregation helpers and the percent output
 ```
 
 ## Run tests
