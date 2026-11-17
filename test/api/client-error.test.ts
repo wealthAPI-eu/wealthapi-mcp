@@ -19,14 +19,14 @@ describe("ApiClient.get", () => {
   it("get reports status, method and path on API errors", async () => {
     stubFetchWith(400, '{"error":"bad request"}');
     const { ApiClient } = await import("../../src/api/client.js");
-    const error = await new ApiClient().get("/v1/accounts").catch((e: unknown) => e);
+    const error = await new ApiClient({ baseUrl: "https://api.test/api", token: "test-token" }).get("/v1/accounts").catch((e: unknown) => e);
     expect(String(error)).toContain("API error 400 on GET /v1/accounts");
   });
 
   it("get omits the response body from API error messages", async () => {
     stubFetchWith(400, '{"iban":"DE89370400440532013000"}');
     const { ApiClient } = await import("../../src/api/client.js");
-    const error = await new ApiClient().get("/v1/accounts").catch((e: unknown) => e);
+    const error = await new ApiClient({ baseUrl: "https://api.test/api", token: "test-token" }).get("/v1/accounts").catch((e: unknown) => e);
     expect(String(error)).not.toContain("DE89370400440532013000");
   });
 });

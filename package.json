@@ -5,7 +5,14 @@
   "description": "General-purpose MCP server for the wealthAPI platform. Lets an AI assistant answer everyday portfolio questions on the user's behalf.",
   "license": "MIT",
   "type": "module",
-  "main": "build/index.js",
+  "main": "build/library.js",
+  "types": "build/library.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/library.d.ts",
+      "default": "./build/library.js"
+    }
+  },
   "bin": {
     "wealthapi-mcp": "build/index.js"
   },

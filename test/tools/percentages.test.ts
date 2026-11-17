@@ -1,44 +1,20 @@
-import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { describe, it, expect, afterEach, vi } from "vitest";
 
-beforeAll(() => {
-  process.env.BEARER_TOKEN = "test-token";
-});
+import { connectTools } from "../../src/library.js";
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
-
-async function connect(): Promise<Client> {
-  const { ApiClient } = await import("../../src/api/client.js");
-  const { registerRiskTools } = await import("../../src/tools/risk.js");
-  const { registerDividendTools } = await import("../../src/tools/dividends.js");
-  const server = new McpServer({ name: "test", version: "0.0.0" });
-  const api = new ApiClient();
-  registerRiskTools(server, api);
-  registerDividendTools(server, api);
-  const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
-  const client = new Client({ name: "test", version: "0.0.0" });
-  await Promise.all([server.connect(serverSide), client.connect(clientSide)]);
-  return client;
-}
-
-function firstText(result: unknown): string {
-  const content = (result as { content: { text?: string }[] }).content;
-  return content[0]?.text ?? "";
-}
 
 async function callWith(body: unknown, tool: string, args: Record<string, unknown>): Promise<string> {
   vi.stubGlobal(
     "fetch",
     vi.fn(async () => new Response(JSON.stringify(body), { status: 200 }))
   );
-  const client = await connect();
-  const result = await client.callTool({ name: tool, arguments: args });
-  await client.close();
-  return firstText(result);
+  const connection = await connectTools({ baseUrl: "https://api.test/api", token: "t" });
+  const result = await connection.call(tool, args);
+  await connection.close();
+  return result.text;
 }
 
 const YIELD = {
