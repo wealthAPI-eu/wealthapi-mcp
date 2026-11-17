@@ -1,4 +1,3 @@
-import { config } from "../config.js";
 import { logger } from "../util/logger.js";
 
 const MAX_RETRIES_5XX = 2;
@@ -7,7 +6,14 @@ const MAX_RETRIES_429 = 3;
 type QueryValue = string | number | boolean | string[] | number[] | undefined;
 export type QueryParams = Record<string, QueryValue>;
 
+export interface ApiClientOptions {
+  baseUrl: string;
+  token: string;
+}
+
 export class ApiClient {
+  constructor(private readonly options: ApiClientOptions) {}
+
   async get<T>(path: string, params?: QueryParams): Promise<T> {
     return this.execute<T>("GET", path, { params });
   }
@@ -22,12 +28,12 @@ export class ApiClient {
     options: { params?: QueryParams; body?: unknown },
     retryCount = 0
   ): Promise<T> {
-    const url = buildUrl(config.apiBaseUrl, path, options.params);
+    const url = buildUrl(this.options.baseUrl, path, options.params);
     const fetchInit: RequestInit = {
       method,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${config.bearerToken}`,
+        Authorization: `Bearer ${this.options.token}`,
       },
     };
     if (options.body !== undefined) {
