@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.2",
   "name": "wealthapi-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "General-purpose MCP server for the wealthAPI platform. Lets an AI assistant answer everyday portfolio questions on the user's behalf.",
   "author": {
     "name": "Belkacem Berchiche",

@@ -36,7 +36,7 @@ export async function connectTools(options: ConnectOptions): Promise<ToolConnect
 
 async function connectClient(options: ConnectOptions): Promise<Client> {
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-  const client = new Client({ name: "wealthapi-mcp-library", version: "0.1.0" });
+  const client = new Client({ name: "wealthapi-mcp-library", version: "0.2.0" });
   await createServer(options).connect(serverTransport);
   await client.connect(clientTransport);
   return client;
