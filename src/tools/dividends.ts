@@ -184,16 +184,16 @@ export function registerDividendTools(server: McpServer, client: ApiClient): voi
           String(y.year),
           formatCurrency(y.totalGrossDividend, y.currency),
           formatCurrency(y.totalNetDividend, y.currency),
-          formatPercent(y.grossYield),
-          formatPercent(y.netYield),
-          formatPercent(y.netYieldOnInvestedCapital),
+          formatPercent(y.grossYield * 100),
+          formatPercent(y.netYield * 100),
+          formatPercent(y.netYieldOnInvestedCapital * 100),
         ]);
 
         const lines = ["Portfolio dividend yield per year:", "", formatTable(headers, rows)];
 
         const cagr = data.cagrResult;
         if (cagr && cagr.years > 0) {
-          lines.push("", `Dividend CAGR ${cagr.initialYear}–${cagr.finalYear} (${cagr.years} years): ${formatPercent(cagr.cagr)}`);
+          lines.push("", `Dividend CAGR ${cagr.initialYear}–${cagr.finalYear} (${cagr.years} years): ${formatPercent(cagr.cagr * 100)}`);
         }
 
         return { content: [{ type: "text" as const, text: lines.join("\n") }] };
