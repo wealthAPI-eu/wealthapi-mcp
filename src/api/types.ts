@@ -8,6 +8,7 @@ export interface PagingInfo {
 export interface Account {
   id: number;
   name: string;
+  bankName?: string;
   type: string;
   iban?: string;
   balance?: number;
