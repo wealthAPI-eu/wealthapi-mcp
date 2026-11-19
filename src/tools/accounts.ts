@@ -1,15 +1,35 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ApiClient } from "../api/client.js";
-import type { AccountList, DateValuePairList } from "../api/types.js";
+import type { Account, AccountList, DateValuePairList } from "../api/types.js";
 import { formatCurrency, formatDate, formatPercent, formatTable } from "../util/format.js";
+
+const ACCOUNT_HEADERS = ["ID", "Name", "Bank", "Type", "Balance", "Currency", "Linked To"];
+
+function linkedAccounts(account: Account): string {
+  if (account.contraAccountId) return `cash→${account.contraAccountId}`;
+  if (account.depotIds && account.depotIds.length > 0) return `depot→${account.depotIds.join(",")}`;
+  return "—";
+}
+
+export function accountRow(account: Account): string[] {
+  return [
+    String(account.id),
+    account.name ?? "N/A",
+    account.bankName ?? "N/A",
+    account.type ?? "N/A",
+    account.balance !== undefined ? formatCurrency(account.balance, account.currency) : "N/A",
+    account.currency ?? "N/A",
+    linkedAccounts(account),
+  ];
+}
 
 export function registerAccountTools(server: McpServer, client: ApiClient): void {
   server.registerTool(
     "list_accounts",
     {
       description:
-        "List all of the user's accounts: depots (where investments live), cash accounts, insurance, etc. Start here when you need to know which accounts exist before drilling in.",
+        "List all of the user's accounts with their bank: depots (where investments live), cash accounts, insurance, etc. Start here when you need to know which accounts exist before drilling in.",
       inputSchema: {},
     },
     async () => {
@@ -21,25 +41,10 @@ export function registerAccountTools(server: McpServer, client: ApiClient): void
           return { content: [{ type: "text" as const, text: "No accounts found." }] };
         }
 
-        const headers = ["ID", "Name", "Type", "Balance", "Currency", "Linked To"];
-        const rows = accounts.map((a) => {
-          let linked = "—";
-          if (a.contraAccountId) linked = `cash→${a.contraAccountId}`;
-          else if (a.depotIds && a.depotIds.length > 0) linked = `depot→${a.depotIds.join(",")}`;
-          return [
-            String(a.id),
-            a.name ?? "N/A",
-            a.type ?? "N/A",
-            a.balance !== undefined ? formatCurrency(a.balance, a.currency) : "N/A",
-            a.currency ?? "N/A",
-            linked,
-          ];
-        });
-
         const text = [
           `Found ${accounts.length} account(s):`,
           "",
-          formatTable(headers, rows),
+          formatTable(ACCOUNT_HEADERS, accounts.map(accountRow)),
           "",
           "Use depot IDs (type '01_depot') for list_investments and list_bookings.",
           "Use cash account IDs (type '02_cash') for get_account_balances and list_transactions.",

@@ -68,7 +68,7 @@ Always quote concrete numbers, currencies and dates. Be concise.`;
 export function createServer(options: ApiClientOptions): McpServer {
   const client = new ApiClient(options);
   const server = new McpServer(
-    { name: "wealthapi-mcp", version: "0.2.0" },
+    { name: "wealthapi-mcp", version: "0.2.1" },
     { instructions: INSTRUCTIONS }
   );
   const gated = restrictServer(server, {
